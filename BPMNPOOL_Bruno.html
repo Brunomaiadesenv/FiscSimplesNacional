@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BPMN - Fiscalização do Simples Nacional</title>
+    <!-- Carregamento do Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Configuração do Tailwind e Fonte Inter -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        'primary': '#0F172A', // Slate 900
+                        'secondary': '#1D4ED8', // Blue 700 (Supernova)
+                        'rfb': '#DC2626', // Red 600 (Receita Federal)
+                        'contribuinte': '#CA8A04', // Amber 600
+                        'database': '#059669', // Emerald 600
+                        'bi': '#3B82F6', // Blue 500
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Ícones Lucide -->
+    <script type="module">
+        import { createIcons, Search, Check, X, Users, Database, Server, BarChart2, Briefcase, ChevronRight, CornerDownRight, Zap, ArrowDown, Shuffle } from 'https://cdn.jsdelivr.net/npm/lucide@latest/dist/esm/lucide.js';
+        createIcons({ icons: { Search, Check, X, Users, Database, Server, BarChart2, Briefcase, ChevronRight, CornerDownRight, Zap, ArrowDown, Shuffle } });
+    </script>
+    <style>
+        /* Estilo para a linha do tempo */
+        .timeline-step {
+            position: relative;
+            padding-left: 1.75rem; /* Espaçamento para o ponto */
+            border-left: 2px solid #E2E8F0; /* Linha de conexão (slate-200) */
+        }
+        .timeline-step:last-child {
+            border-left: none; /* Remove a linha do último item */
+        }
+        .timeline-step::before {
+            content: '';
+            position: absolute;
+            left: -0.5rem; /* Ajuste para o centro da linha */
+            top: 0;
+            width: 1rem;
+            height: 1rem;
+            background-color: #3B82F6; /* Cor do ponto */
+            border-radius: 9999px; /* Circular */
+            z-index: 10;
+        }
+
+        /* Estilo específico para Gateways */
+        .gateway {
+            border-left: 2px dashed #94A3B8; /* Linha tracejada */
+        }
+        .gateway::before {
+            background-color: #FACC15; /* Amarelo */
+            border: 3px solid #EAB308;
+            width: 1.25rem;
+            height: 1.25rem;
+            left: -0.625rem;
+            transform: rotate(45deg);
+            border-radius: 4px;
+        }
+
+        /* Cor do ponto inicial */
+        #start-event::before {
+            background-color: #22C55E; /* Verde */
+            box-shadow: 0 0 0 4px #ECFDF5;
+        }
+        /* Cor do ponto final */
+        #end-event::before {
+            background-color: #EF4444; /* Vermelho */
+            box-shadow: 0 0 0 4px #FEF2F2;
+        }
+
+    </style>
+</head>
+<body class="font-sans bg-gray-50 min-h-screen p-4 md:p-8 text-primary">
+
+    <div class="max-w-7xl mx-auto">
+        <!-- Título Principal -->
+        <header class="mb-8 p-4 bg-white shadow-xl rounded-xl border-t-4 border-secondary">
+            <h1 class="text-3xl md:text-4xl font-extrabold text-secondary flex items-center">
+                <i data-lucide="zap" class="w-8 h-8 mr-3"></i>
+                BPMN: Fiscalização do Simples Nacional
+            </h1>
+            <p class="mt-2 text-gray-500 text-lg">
+                Integração PGDAS-D / DEFIS ↔ Sistema de Gestão Tributária (Supernova)
+            </p>
+        </header>
+
+        <!-- Seção de Participantes (Pools e Lanes) -->
+        <section class="mb-10">
+            <h2 class="text-xl font-bold mb-4 text-primary border-b pb-2">
+                🏛️ Participantes (Pools e Lanes)
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
+                <!-- Contribuinte -->
+                <div class="p-4 bg-contribuinte text-white rounded-lg shadow-md md:col-span-1">
+                    <p class="font-semibold text-lg">Contribuinte (Empresa)</p>
+                    <small class="block opacity-80">Usuário Declarante</small>
+                </div>
+                <!-- RFB -->
+                <div class="p-4 bg-rfb text-white rounded-lg shadow-md md:col-span-1">
+                    <p class="font-semibold text-lg">Receita Federal (RFB)</p>
+                    <small class="block opacity-80">Portal e-CAC / SN</small>
+                </div>
+                <!-- Supernova (Fiscal) -->
+                <div class="p-4 bg-secondary text-white rounded-lg shadow-md md:col-span-1">
+                    <p class="font-semibold text-lg">Supernova - Fiscalização</p>
+                    <small class="block opacity-80">Fiscal do Sistema</small>
+                </div>
+                <!-- Banco de Dados -->
+                <div class="p-4 bg-database text-white rounded-lg shadow-md md:col-span-1">
+                    <p class="font-semibold text-lg">Banco de Dados</p>
+                    <small class="block opacity-80">SQL Server (Armazenamento)</small>
+                </div>
+                <!-- Power BI -->
+                <div class="p-4 bg-bi text-white rounded-lg shadow-md md:col-span-1">
+                    <p class="font-semibold text-lg">Power BI / BI Analyst</p>
+                    <small class="block opacity-80">Relatórios e Dashboards</small>
+                </div>
+            </div>
+        </section>
+
+        <!-- Fluxo Detalhado BPMN (Timeline) -->
+        <section>
+            <h2 class="text-xl font-bold mb-6 text-primary border-b pb-2">
+                ⚙️ Fluxo Detalhado por Etapas (7 Steps)
+            </h2>
+
+            <div class="space-y-6">
+
+                <!-- START EVENT -->
+                <div id="start-event" class="timeline-step !border-l-0">
+                    <div class="flex items-center text-green-600 font-bold mb-2">
+                        <i data-lucide="arrow-down" class="w-5 h-5 mr-2"></i>
+                        <span>INÍCIO: Recebimento dos Arquivos XML da RFB</span>
+                    </div>
+                </div>
+
+                <!-- 1. Declaração e Extração de Dados -->
+                <div class="timeline-step p-4 bg-white rounded-lg shadow-lg">
+                    <span class="text-sm font-semibold text-gray-500">Etapa 1: Contribuinte + RFB</span>
+                    <h3 class="text-lg font-bold mt-1 mb-2 flex items-center text-rfb">
+                        <i data-lucide="briefcase" class="w-5 h-5 mr-2"></i>
+                        Declaração e Extração de Dados (PGDAS-D / DEFIS)
+                    </h3>
+                    <p class="text-sm text-gray-700">O contribuinte transmite as declarações fiscais via e-CAC, gerando os arquivos XML oficiais de apuração e declaração anual (e.g., PGDASD2018-...).</p>
+                    <p class="mt-2 text-xs text-rfb font-mono p-1 bg-red-50 rounded">SAÍDA: Arquivos .zip contendo XML/XSD.</p>
+                </div>
+
+                <!-- 2. Coleta e Armazenamento Inicial -->
+                <div class="timeline-step p-4 bg-white rounded-lg shadow-lg">
+                    <span class="text-sm font-semibold text-gray-500">Etapa 2: Fiscal do Sistema (Supernova)</span>
+                    <h3 class="text-lg font-bold mt-1 mb-2 flex items-center text-secondary">
+                        <i data-lucide="server" class="w-5 h-5 mr-2"></i>
+                        Coleta e Armazenamento Local
+                    </h3>
+                    <p class="text-sm text-gray-700">O Fiscal baixa os arquivos do e-CAC e os armazena no diretório padrão (`C:\FiscalizacaoSN\XML_Receita\`) para a importação.</p>
+                    <p class="mt-2 text-xs text-secondary font-mono p-1 bg-blue-50 rounded">SAÍDA: XMLs armazenados para importação.</p>
+                </div>
+
+                <!-- GATEWAY PARALELO -->
+                <div class="timeline-step gateway p-4 rounded-lg bg-yellow-50 border-yellow-300 border">
+                    <div class="flex items-center text-yellow-700 font-bold">
+                        <i data-lucide="shuffle" class="w-5 h-5 mr-2"></i>
+                        GATEWAY PARALELO: Início da Importação Simulatânea
+                    </div>
+                    <p class="text-sm text-yellow-800 mt-1">PGDAS-D e DEFIS são importados de forma independente e simultânea.</p>
+                </div>
+
+                <!-- 3. Importação no Banco de Dados -->
+                <div class="timeline-step p-4 bg-white rounded-lg shadow-lg">
+                    <span class="text-sm font-semibold text-gray-500">Etapa 3: Banco de Dados (SQL Server)</span>
+                    <h3 class="text-lg font-bold mt-1 mb-2 flex items-center text-database">
+                        <i data-lucide="database" class="w-5 h-5 mr-2"></i>
+                        Importação e Normalização (PGDAS/DEFIS)
+                    </h3>
+                    <p class="text-sm text-gray-700">Execução das procedures (e.g., `usp_importar_pgdas_xml`) para carregar os XMLs no Staging e popular as tabelas normalizadas (`pgdas_contribuinte`, `defis_declaracao`, etc.).</p>
+                    <p class="mt-2 text-xs text-database font-mono p-1 bg-emerald-50 rounded">SAÍDA: Dados estruturados em base_fiscalizacao_SN.</p>
+                </div>
+
+                <!-- 4. Carga de Dados do Sistema Supernova -->
+                <div class="timeline-step p-4 bg-white rounded-lg shadow-lg">
+                    <span class="text-sm font-semibold text-gray-500">Etapa 4: Sistema Supernova / Fiscal</span>
+                    <h3 class="text-lg font-bold mt-1 mb-2 flex items-center text-secondary">
+                        <i data-lucide="corner-down-right" class="w-5 h-5 mr-2"></i>
+                        Carga de Dados Locais e Consolidação
+                    </h3>
+                    <p class="text-sm text-gray-700">Importação de dados internos do sistema (NF-e, NFSe, cadastros) na tabela `doc_fonte` e vinculação por CNPJ/Período de Apuração (PA).</p>
+                    <p class="mt-2 text-xs text-secondary font-mono p-1 bg-blue-50 rounded">SAÍDA: Base consolidada Supernova + Receita Federal.</p>
+                </div>
+
+                <!-- 5. Processamento e Cruzamento Automático -->
+                <div class="timeline-step p-4 bg-white rounded-lg shadow-lg">
+                    <span class="text-sm font-semibold text-gray-500">Etapa 5: Banco de Dados (SQL Server)</span>
+                    <h3 class="text-lg font-bold mt-1 mb-2 flex items-center text-database">
+                        <i data-lucide="search" class="w-5 h-5 mr-2"></i>
+                        Processamento e Views de Reconciliação
+                    </h3>
+                    <p class="text-sm text-gray-700">Execução das views automáticas de cruzamento, como `vw_pgdas_divergencia` (compara Receita Bruta PGDAS-D x Receita Supernova) e `vw_pgdas_alertas` (status de risco).</p>
+                    <p class="mt-2 text-xs text-database font-mono p-1 bg-emerald-50 rounded">SAÍDA: Dados consolidados para análise de divergência.</p>
+                </div>
+
+                <!-- 6. Análise de Resultados em Power BI -->
+                <div class="timeline-step p-4 bg-white rounded-lg shadow-lg">
+                    <span class="text-sm font-semibold text-gray-500">Etapa 6: Power BI (Analista BI / Fiscal)</span>
+                    <h3 class="text-lg font-bold mt-1 mb-2 flex items-center text-bi">
+                        <i data-lucide="bar-chart-2" class="w-5 h-5 mr-2"></i>
+                        Análise e Visualização (Dashboards)
+                    </h3>
+                    <p class="text-sm text-gray-700">Conexão DirectQuery ao banco para criação de relatórios interativos: "Divergência Receita Bruta", "Ranking de Alertas", "Mapa ISS / CNAE".</p>
+                    <p class="mt-2 text-xs text-bi font-mono p-1 bg-blue-50 rounded">SAÍDA: Dashboard de Fiscalização em tempo real.</p>
+                </div>
+
+                <!-- GATEWAY EXCLUSIVO -->
+                <div class="timeline-step gateway p-4 rounded-lg bg-yellow-50 border-yellow-300 border">
+                    <div class="flex items-center text-yellow-700 font-bold">
+                        <i data-lucide="shuffle" class="w-5 h-5 mr-2"></i>
+                        GATEWAY EXCLUSIVO: Decisão de Ação Fiscal
+                    </div>
+                    <div class="text-sm text-yellow-800 mt-2">
+                        <p class="flex items-center"><i data-lucide="chevron-right" class="w-4 h-4 mr-1"></i> Se divergência <span class="font-bold text-red-600">>5%</span>: Segue para Ação Fiscal (Alerta).</p>
+                        <p class="flex items-center"><i data-lucide="chevron-right" class="w-4 h-4 mr-1"></i> Se divergência <span class="font-bold text-green-600">≤5%</span>: Encerrar Processo (OK).</p>
+                    </div>
+                </div>
+
+                <!-- 7. Ação Fiscal e Encerramento (Continuação da Linha) -->
+                <div class="timeline-step p-4 bg-white rounded-lg shadow-lg">
+                    <span class="text-sm font-semibold text-gray-500">Etapa 7: Fiscal / Gestor</span>
+                    <h3 class="text-lg font-bold mt-1 mb-2 flex items-center text-red-600">
+                        <i data-lucide="users" class="w-5 h-5 mr-2"></i>
+                        Ação Fiscal e Registro no Supernova
+                    </h3>
+                    <p class="text-sm text-gray-700">Geração de relatórios de inconsistência, início do procedimento de notificação e registro da ação fiscal no módulo Supernova.</p>
+                    <p class="mt-2 text-xs text-red-600 font-mono p-1 bg-red-50 rounded">SAÍDA: Processo concluído com registro da ação corretiva.</p>
+                </div>
+
+                <!-- END EVENT -->
+                <div id="end-event" class="timeline-step !border-l-0">
+                    <div class="flex items-center text-red-600 font-bold mt-4">
+                        <i data-lucide="check" class="w-5 h-5 mr-2"></i>
+                        <span>FIM: Processo Concluído com Ação Registrada</span>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+    </div>
+
+</body>
+</html>
