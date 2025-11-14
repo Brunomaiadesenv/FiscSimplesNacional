@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Apresentação Completa: Fiscalização Simples Nacional - Supernova</title>
+    <!-- Carregamento do Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Configuração do Tailwind e Fonte Inter -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        'primary': '#0F172A', // Slate 900
+                        'supernova': '#1D4ED8', // Blue 700
+                        'rfb': '#DC2626', // Red 600
+                        'data-source': '#CA8A04', // Amber 600
+                        'db-engine': '#059669', // Emerald 600
+                        'bi-output': '#3B82F6', // Blue 500
+                        'decision': '#FACC15', // Yellow 400
+                        'contribuinte': '#CA8A04', // Amber 600
+                        'database': '#059669', // Emerald 600
+                        'bi': '#3B82F6', // Blue 500
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Ícones Lucide -->
+    <script type="module">
+        import { createIcons, Database, Server, FileText, Code, Gauge, CheckCircle, AlertTriangle, Cpu, Link, GitBranch, Briefcase, Users, ArrowDown, Shuffle, Zap, CornerDownRight, BookText, X } from 'https://cdn.jsdelivr.net/npm/lucide@latest/dist/esm/lucide.js';
+        createIcons({ icons: { Database, Server, FileText, Code, Gauge, CheckCircle, AlertTriangle, Cpu, Link, GitBranch, Briefcase, Users, ArrowDown, Shuffle, Zap, CornerDownRight, BookText, X } });
+    </script>
+    <style>
+        /* Estilos do Timeline (Fluxo BPMN) */
+        .timeline-step {
+            position: relative;
+            padding-left: 1.75rem; /* Espaçamento para o ponto */
+            border-left: 2px solid #E2E8F0; /* Linha de conexão (slate-200) */
+        }
+        .timeline-step:last-child {
+            border-left: none; /* Remove a linha do último item */
+        }
+        .timeline-step::before {
+            content: '';
+            position: absolute;
+            left: -0.5rem; /* Ajuste para o centro da linha */
+            top: 0;
+            width: 1rem;
+            height: 1rem;
+            background-color: #3B82F6; /* Cor do ponto (bi-output) */
+            border-radius: 9999px; /* Circular */
+            z-index: 10;
+        }
+
+        /* Estilo específico para Gateways */
+        .gateway {
+            border-left: 2px dashed #94A3B8; /* Linha tracejada */
+        }
+        .gateway::before {
+            background-color: #FACC15; /* Amarelo (decision) */
+            border: 3px solid #EAB308;
+            width: 1.25rem;
+            height: 1.25rem;
+            left: -0.625rem;
+            transform: rotate(45deg);
+            border-radius: 4px;
+        }
+
+        /* Cor do ponto inicial */
+        #start-event::before {
+            background-color: #22C55E; /* Verde */
+            box-shadow: 0 0 0 4px #ECFDF5;
+        }
+        /* Cor do ponto final */
+        #end-event::before {
+            background-color: #EF4444; /* Vermelho */
+            box-shadow: 0 0 0 4px #FEF2F2;
+        }
+
+        /* Estilos do Modal para Especificação Técnica */
+        .modal {
+            transition: opacity 0.3s ease-in-out;
+            opacity: 0;
+            pointer-events: none;
+        }
+        .modal.open {
+            opacity: 1;
+            pointer-events: auto;
+        }
+    </style>
+</head>
+<body class="font-sans bg-gray-50 min-h-screen p-4 md:p-8 text-primary">
+
+    <div class="max-w-7xl mx-auto">
+        <!-- Título Principal e Botão -->
+        <header class="mb-10 p-6 bg-white shadow-2xl rounded-xl border-t-8 border-supernova flex justify-between items-center">
+            <div>
+                <h1 class="text-4xl md:text-5xl font-extrabold text-supernova flex items-center">
+                    <i data-lucide="zap" class="w-10 h-10 mr-4"></i>
+                    Projeto: Fiscalização Simples Nacional
+					
+                </h1>
+				<h1 class="text-4xl md:text-2xl font-extrabold text-supernova flex items-center">
+                    <i class="w-10 h-10 mr-4"></i>
+                    Analista Bruno Maia
+                </h1>
+                <p class="mt-3 text-gray-600 text-xl font-light">
+                    Visão Integrada: Arquitetura, Processo e Ponto de Decisão.
+                </p>
+            </div>
+            <!-- Botão de Especificação Técnica -->
+            <button id="open-spec-modal" class="flex items-center px-4 py-2 bg-db-engine text-white font-semibold rounded-lg shadow-md hover:bg-db-engine/80 transition duration-150">
+                <i data-lucide="book-text" class="w-5 h-5 mr-2"></i>
+                Especificação Técnica
+            </button>
+        </header>
+
+        <!-- SEÇÃO 1: PARTICIPANTES (POOLS E LANES) -->
+        <section class="mb-12">
+            <h2 class="text-3xl font-bold mb-6 text-primary flex items-center border-b pb-2">
+                <i data-lucide="users" class="w-6 h-6 mr-2 text-data-source"></i>
+                1. Pools e Participantes
+            </h2>
+            <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
+                <!-- Contribuinte -->
+                <div class="p-4 bg-contribuinte text-white rounded-lg shadow-md md:col-span-1">
+                    <p class="font-semibold text-lg">Contribuinte</p>
+                    <small class="block opacity-80">Usuário Declarante</small>
+                </div>
+                <!-- RFB -->
+                <div class="p-4 bg-rfb text-white rounded-lg shadow-md md:col-span-1">
+                    <p class="font-semibold text-lg">Receita Federal</p>
+                    <small class="block opacity-80">Portal e-CAC / SN</small>
+                </div>
+                <!-- Supernova (Fiscal) -->
+                <div class="p-4 bg-supernova text-white rounded-lg shadow-md md:col-span-1">
+                    <p class="font-semibold text-lg">Fiscalização (Supernova)</p>
+                    <small class="block opacity-80">Fiscal do Sistema</small>
+                </div>
+                <!-- Banco de Dados -->
+                <div class="p-4 bg-database text-white rounded-lg shadow-md md:col-span-1">
+                    <p class="font-semibold text-lg">SQL Server</p>
+                    <small class="block opacity-80">Motor de Processamento</small>
+                </div>
+                <!-- Power BI -->
+                <div class="p-4 bg-bi text-white rounded-lg shadow-md md:col-span-1">
+                    <p class="font-semibold text-lg">BI Analyst</p>
+                    <small class="block opacity-80">Relatórios e Dashboards</small>
+                </div>
+            </div>
+        </section>
+
+        <!-- SEÇÃO 2: VISÃO ARQUITETURAL E LÓGICA -->
+        <section class="mb-12">
+            <h2 class="text-3xl font-bold mb-6 text-primary flex items-center border-b pb-2">
+                <i data-lucide="cpu" class="w-6 h-6 mr-2 text-supernova"></i>
+                2. Arquitetura de Integração e Lógica
+            </h2>
+
+            <!-- GRID PRINCIPAL DE ARQUITETURA -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+                <!-- COLUNA 1: FONTES DE DADOS E REGRAS -->
+                <div class="lg:col-span-1 space-y-6">
+                    <h3 class="text-xl font-bold text-data-source flex items-center mb-2">
+                        <i data-lucide="server" class="w-5 h-5 mr-2"></i>
+                        Fontes e Regras
+                    </h3>
+                    <div class="bg-white p-6 rounded-xl shadow-lg border-l-4 border-rfb">
+                        <p class="font-semibold text-lg text-rfb">Receita Federal (PGDAS-D/DEFIS)</p>
+                        <p class="text-sm text-gray-700 mt-1">PGDAS-D Mensal (Receita Bruta), DEFIS Anual (Socioeconômico).</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl shadow-lg border-l-4 border-supernova">
+                        <p class="font-semibold text-lg text-supernova">Sistema Supernova</p>
+                        <p class="text-sm text-gray-700 mt-1">Dados Locais (NF-e, NFSe, Cadastros) na tabela `doc_fonte`.</p>
+                    </div>
+                    <div class="bg-data-source/10 p-6 rounded-xl shadow-lg border-l-4 border-data-source">
+                        <p class="font-semibold text-lg text-data-source">Regras Críticas</p>
+                        <p class="text-sm text-gray-700 mt-1">O cruzamento deve considerar o **Regime de Apuração** (Caixa X Competência) e a **Granularidade** (CNAE/Estabelecimento).</p>
+                    </div>
+                </div>
+
+                <!-- COLUNA 2: MOTOR DE PROCESSAMENTO SQL -->
+                <div class="lg:col-span-1 space-y-6">
+                    <h3 class="text-xl font-bold text-db-engine flex items-center mb-2">
+                        <i data-lucide="database" class="w-5 h-5 mr-2"></i>
+                        Motor SQL (Processamento)
+                    </h3>
+                    <div class="bg-db-engine/10 p-6 rounded-xl shadow-lg border-l-4 border-db-engine">
+                        <p class="font-semibold text-lg text-db-engine">Importação & Normalização (Etapa 3)</p>
+                        <p class="text-sm text-gray-700 font-medium">Procedures carregam XMLs para Staging e popular tabelas transacionais.</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl shadow-lg border-l-4 border-gray-400">
+                        <p class="font-semibold text-lg text-gray-700">Chave de Consolidação (Etapa 4)</p>
+                        <p class="mt-2 text-lg font-extrabold text-supernova">CNPJ + Período de Apuração (PA)</p>
+                        <p class="text-xs text-gray-500 mt-1">Liga RFB e `doc_fonte` (Supernova).</p>
+                    </div>
+                    <div class="bg-db-engine p-6 rounded-xl shadow-lg border-l-4 border-green-300 text-white">
+                        <p class="font-semibold text-lg">Views de Cruzamento (Etapa 5)</p>
+                        <ul class="list-none space-y-2 text-sm">
+                            <li>**`vw_pgdas_divergencia`** (Cálculo Receita x Sistema).</li>
+                            <li>**`vw_pgdas_alertas`** (Classificação de Risco).</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- COLUNA 3: ANÁLISE E DECISÃO (POWER BI) -->
+                <div class="lg:col-span-1 space-y-6">
+                    <h3 class="text-xl font-bold text-bi-output flex items-center mb-2">
+                        <i data-lucide="gauge" class="w-5 h-5 mr-2"></i>
+                        BI e Decisão
+                    </h3>
+                    <div class="bg-white p-6 rounded-xl shadow-lg border-l-4 border-bi-output">
+                        <p class="font-semibold text-lg text-bi-output">Power BI (DirectQuery - Etapa 6)</p>
+                        <p class="text-sm text-gray-700">Garante visualização em **Tempo Real** dos alertas gerados na Etapa 5.</p>
+                    </div>
+                    <div class="bg-bi-output p-6 rounded-xl shadow-lg text-white">
+                        <p class="font-semibold text-lg">Lógica de Divergência (DAX)</p>
+                        <p class="text-sm font-mono bg-white/10 p-2 rounded mt-1">`DivergenciaPct = DIVIDE([Val_Div], [TotalRPA], 0) * 100`</p>
+                    </div>
+                    <div class="bg-decision p-6 rounded-xl shadow-lg border-l-4 border-yellow-700">
+                        <p class="font-semibold text-lg text-yellow-800">Decisão Formal (Gateway)</p>
+                        <p class="text-sm text-yellow-800 font-semibold mt-1">**ALERTA (Etapa 7)**: Se Divergência > 5%</p>
+                        <p class="text-sm text-yellow-800 font-semibold mt-1">**ENCERRAMENTO**: Se Divergência ≤ 5%</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SEÇÃO 3: FLUXO DE EXECUÇÃO BPMN (TIMELINE) -->
+        <section class="mt-12">
+            <h2 class="text-3xl font-bold mb-8 text-primary flex items-center border-b pb-2">
+                <i data-lucide="git-branch" class="w-6 h-6 mr-2 text-db-engine"></i>
+                3. Fluxo Detalhado de Execução (7 Etapas BPMN)
+            </h2>
+
+            <div class="space-y-6">
+
+                <!-- START EVENT -->
+                <div id="start-event" class="timeline-step !border-l-0">
+                    <div class="flex items-center text-green-600 font-bold mb-2">
+                        <i data-lucide="arrow-down" class="w-5 h-5 mr-2"></i>
+                        <span>INÍCIO: Recebimento dos Arquivos XML da RFB</span>
+                    </div>
+                </div>
+
+                <!-- 1. Declaração e Extração de Dados -->
+                <div class="timeline-step p-4 bg-white rounded-lg shadow-lg">
+                    <span class="text-xs font-semibold text-gray-500">Etapa 1: Contribuinte + RFB</span>
+                    <h3 class="text-lg font-bold mt-1 mb-2 flex items-center text-rfb">
+                        <i data-lucide="briefcase" class="w-5 h-5 mr-2"></i>
+                        Declaração e Extração (PGDAS-D / DEFIS)
+                    </h3>
+                </div>
+
+                <!-- 2. Coleta e Armazenamento Inicial -->
+                <div class="timeline-step p-4 bg-white rounded-lg shadow-lg">
+                    <span class="text-xs font-semibold text-gray-500">Etapa 2: Fiscal do Sistema</span>
+                    <h3 class="text-lg font-bold mt-1 mb-2 flex items-center text-supernova">
+                        <i data-lucide="server" class="w-5 h-5 mr-2"></i>
+                        Coleta e Armazenamento Local
+                    </h3>
+                </div>
+
+                <!-- GATEWAY PARALELO -->
+                <div class="timeline-step gateway p-4 rounded-lg bg-yellow-50 border-yellow-300 border">
+                    <div class="flex items-center text-yellow-700 font-bold">
+                        <i data-lucide="shuffle" class="w-5 h-5 mr-2"></i>
+                        GATEWAY PARALELO: Importação Simulatânea PGDAS-D e DEFIS
+                    </div>
+                </div>
+
+                <!-- 3. Importação no Banco de Dados -->
+                <div class="timeline-step p-4 bg-white rounded-lg shadow-lg">
+                    <span class="text-xs font-semibold text-gray-500">Etapa 3: SQL Server</span>
+                    <h3 class="text-lg font-bold mt-1 mb-2 flex items-center text-database">
+                        <i data-lucide="database" class="w-5 h-5 mr-2"></i>
+                        Importação e Normalização do XML
+                    </h3>
+                </div>
+
+                <!-- 4. Carga de Dados do Sistema Supernova -->
+                <div class="timeline-step p-4 bg-white rounded-lg shadow-lg">
+                    <span class="text-xs font-semibold text-gray-500">Etapa 4: Supernova</span>
+                    <h3 class="text-lg font-bold mt-1 mb-2 flex items-center text-supernova">
+                        <i data-lucide="corner-down-right" class="w-5 h-5 mr-2"></i>
+                        Carga de Dados Locais e Consolidação
+                    </h3>
+                </div>
+
+                <!-- 5. Processamento e Cruzamento Automático -->
+                <div class="timeline-step p-4 bg-white rounded-lg shadow-lg">
+                    <span class="text-xs font-semibold text-gray-500">Etapa 5: SQL Server</span>
+                    <h3 class="text-lg font-bold mt-1 mb-2 flex items-center text-database">
+                        <i data-lucide="git-branch" class="w-5 h-5 mr-2"></i>
+                        Execução das Views de Reconciliação
+                    </h3>
+                </div>
+
+                <!-- 6. Análise de Resultados em Power BI -->
+                <div class="timeline-step p-4 bg-white rounded-lg shadow-lg">
+                    <span class="text-xs font-semibold text-gray-500">Etapa 6: Power BI</span>
+                    <h3 class="text-lg font-bold mt-1 mb-2 flex items-center text-bi">
+                        <i data-lucide="gauge" class="w-5 h-5 mr-2"></i>
+                        Análise em Tempo Real (DirectQuery)
+                    </h3>
+                </div>
+
+                <!-- GATEWAY EXCLUSIVO -->
+                <div class="timeline-step gateway p-4 rounded-lg bg-yellow-50 border-yellow-300 border">
+                    <div class="flex items-center text-yellow-700 font-bold">
+                        <i data-lucide="shuffle" class="w-5 h-5 mr-2"></i>
+                        GATEWAY EXCLUSIVO: Decisão Formal (Divergência > 5%)
+                    </div>
+                </div>
+
+                <!-- 7. Ação Fiscal e Encerramento -->
+                <div class="timeline-step p-4 bg-white rounded-lg shadow-lg">
+                    <span class="text-xs font-semibold text-gray-500">Etapa 7: Fiscal / Gestor</span>
+                    <h3 class="text-lg font-bold mt-1 mb-2 flex items-center text-rfb">
+                        <i data-lucide="alert-triangle" class="w-5 h-5 mr-2"></i>
+                        Ação Fiscal e Registro no Supernova
+                    </h3>
+                </div>
+
+                <!-- END EVENT -->
+                <div id="end-event" class="timeline-step !border-l-0">
+                    <div class="flex items-center text-red-600 font-bold mt-4">
+                        <i data-lucide="check-circle" class="w-5 h-5 mr-2"></i>
+                        <span>FIM: Processo Concluído com Ação Registrada</span>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- Rodapé de Ação -->
+        <footer class="mt-12 p-6 bg-white rounded-xl shadow-xl text-center text-gray-600 text-base border-t-4 border-supernova/50">
+            <p class="font-medium">Foco do Projeto:</p>
+            <p>Automatizar o motor de cruzamento no SQL Server para capacitar a **Ação Fiscal (Etapa 7)** da Supernova. Analista Bruno Maia</p>
+        </footer>
+    </div>
+
+    <!-- MODAL DE ESPECIFICAÇÃO TÉCNICA (Oculto por Padrão) -->
+    <div id="spec-modal" class="modal fixed inset-0 z-50 flex items-center justify-center bg-gray-900 bg-opacity-70 p-4">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-4xl max-h-full overflow-y-auto transform transition-all duration-300 scale-95 modal-content">
+            <!-- Header do Modal -->
+            <div class="sticky top-0 bg-supernova text-white p-6 rounded-t-xl flex justify-between items-center z-10">
+                <h2 class="text-2xl font-bold flex items-center">
+                    <i data-lucide="book-text" class="w-6 h-6 mr-3"></i>
+                    Especificação Técnica Consolidada (Time de Dev)
+                </h2>
+                <button id="close-spec-modal" class="text-white hover:text-gray-200 transition">
+                    <i data-lucide="x" class="w-6 h-6"></i>
+                </button>
+            </div>
+            
+            <!-- Conteúdo da Especificação -->
+            <div class="p-6 space-y-6 text-gray-800 modal-body">
+                <h1 class="text-3xl font-extrabold text-primary border-b pb-2">Especificação Técnica Consolidada: Projeto de Fiscalização Simples Nacional (Supernova)</h1>
+                <p class="text-lg font-semibold">
+                    **Objetivo:** Automatizar o cruzamento de dados de Receita Federal (PGDAS-D/DEFIS) com a Receita Faturada no Sistema Supernova (doc\_fonte), visando identificar e classificar divergências para subsidiar a Ação Fiscal.
+                </p>
+                <p class="text-sm text-gray-500">**Público-Alvo:** Time de Desenvolvimento (Backend/SQL), DBA, e Analistas de BI.</p>
+
+                <div class="space-y-4">
+                    <h2 class="text-2xl font-bold text-supernova border-b pb-1">1. Visão Geral e Regras de Negócio</h2>
+
+                    <h3 class="text-xl font-semibold mt-4">1.1 Fontes de Dados</h3>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm text-left text-gray-500 rounded-lg overflow-hidden">
+                            <thead class="text-xs text-gray-700 uppercase bg-gray-50">
+                                <tr>
+                                    <th scope="col" class="px-4 py-3">Fonte</th>
+                                    <th scope="col" class="px-4 py-3">Tipo</th>
+                                    <th scope="col" class="px-4 py-3">Periodicidade</th>
+                                    <th scope="col" class="px-4 py-3">Conteúdo Principal</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="bg-white border-b hover:bg-gray-50">
+                                    <th scope="row" class="px-4 py-2 font-medium text-gray-900 whitespace-nowrap">RFB - PGDAS-D</th>
+                                    <td class="px-4 py-2">XML (e-CAC)</td>
+                                    <td class="px-4 py-2">Mensal</td>
+                                    <td class="px-4 py-2">Receita Bruta por Período de Apuração (PA), CNAE e Estabelecimento.</td>
+                                </tr>
+                                <tr class="bg-white border-b hover:bg-gray-50">
+                                    <th scope="row" class="px-4 py-2 font-medium text-gray-900 whitespace-nowrap">RFB - DEFIS</th>
+                                    <td class="px-4 py-2">XML (e-CAC)</td>
+                                    <td class="px-4 py-2">Anual</td>
+                                    <td class="px-4 py-2">Consolidação anual de informações socioeconômicas.</td>
+                                </tr>
+                                <tr class="bg-white hover:bg-gray-50">
+                                    <th scope="row" class="px-4 py-2 font-medium text-gray-900 whitespace-nowrap">Supernova</th>
+                                    <td class="px-4 py-2">Tabela SQL (`doc_fonte`)</td>
+                                    <td class="px-4 py-2">Tempo Real</td>
+                                    <td class="px-4 py-2">Dados de NF-e, NFSe e cadastros utilizados para cálculo da Receita Faturada.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <h3 class="text-xl font-semibold mt-4">1.2 Regras de Cruzamento Críticas</h3>
+                    <ol class="list-decimal list-inside space-y-2 text-base">
+                        <li>**Chave de Consolidação (JOIN KEY):** O cruzamento deve ser feito utilizando a combinação de **CNPJ** + **Período de Apuração (PA)** para garantir a correta vinculação dos valores.</li>
+                        <li>**Regime de Apuração:** O sistema deve considerar o regime optado (Caixa ou Competência) pelo contribuinte, pois isso altera qual receita deve ser confrontada.</li>
+                        <li>**Obrigatoriedade da Declaração:** A declaração PGDAS-D é obrigatória mesmo com Receita Zero. A ausência de declaração deve ser tratada como um Alerta Grave se houver faturamento em `doc_fonte`.</li>
+                        <li>**Granularidade:** Os valores de Receita devem ser confrontados na maior granularidade possível (por CNAE e/ou Estabelecimento).</li>
+                    </ol>
+                </div>
+
+                <div class="space-y-4 pt-4">
+                    <h2 class="text-2xl font-bold text-supernova border-b pb-1">2. Arquitetura de Integração (SQL Server)</h2>
+
+                    <h3 class="text-xl font-semibold mt-4">2.1 Componentes do Banco de Dados</h3>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm text-left text-gray-500 rounded-lg overflow-hidden">
+                            <thead class="text-xs text-gray-700 uppercase bg-gray-50">
+                                <tr>
+                                    <th scope="col" class="px-4 py-3">Tipo de Objeto</th>
+                                    <th scope="col" class="px-4 py-3">Nome (Exemplo)</th>
+                                    <th scope="col" class="px-4 py-3">Função</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="bg-white border-b hover:bg-gray-50">
+                                    <th scope="row" class="px-4 py-2 font-medium text-gray-900 whitespace-nowrap">Staging Tables</th>
+                                    <td class="px-4 py-2 font-mono text-xs text-db-engine">`stg_pgdas_xml`, `stg_defis_xml`</td>
+                                    <td class="px-4 py-2">Recebem o XML bruto via `OPENROWSET`.</td>
+                                </tr>
+                                <tr class="bg-white border-b hover:bg-gray-50">
+                                    <th scope="row" class="px-4 py-2 font-medium text-gray-900 whitespace-nowrap">Transacionais</th>
+                                    <td class="px-4 py-2 font-mono text-xs text-db-engine">`pgdas_apuracao`, `defis_declaracao`</td>
+                                    <td class="px-4 py-2">Mapeamento 1:1 dos dados extraídos do XML, limpos e tipados.</td>
+                                </tr>
+                                <tr class="bg-white border-b hover:bg-gray-50">
+                                    <th scope="row" class="px-4 py-2 font-medium text-gray-900 whitespace-nowrap">View de Cruzamento</th>
+                                    <td class="px-4 py-2 font-mono text-xs text-db-engine">`vw_pgdas_divergencia`</td>
+                                    <td class="px-4 py-2 font-bold text-red-600">CRÍTICA: Calcula a diferença entre `pgdas_apuracao.receitaBrutaPeriodo` e o total da `doc_fonte`.</td>
+                                </tr>
+                                <tr class="bg-white hover:bg-gray-50">
+                                    <th scope="row" class="px-4 py-2 font-medium text-gray-900 whitespace-nowrap">View de Alerta</th>
+                                    <td class="px-4 py-2 font-mono text-xs text-db-engine">`vw_pgdas_alertas`</td>
+                                    <td class="px-4 py-2">Classifica cada divergência em Risco (e.g., OK, Atenção, Alerta Grave).</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <h3 class="text-xl font-semibold mt-4">2.2 Lógica de Cálculo Central (Views)</h3>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm text-left text-gray-500 rounded-lg overflow-hidden">
+                            <thead class="text-xs text-gray-700 uppercase bg-gray-50">
+                                <tr>
+                                    <th scope="col" class="px-4 py-3">Métrica</th>
+                                    <th scope="col" class="px-4 py-3">Definição</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="bg-white border-b hover:bg-gray-50">
+                                    <th scope="row" class="px-4 py-2 font-medium text-gray-900 whitespace-nowrap">TotalRPA</th>
+                                    <td class="px-4 py-2">Soma da Receita Bruta no Período de Apuração (PGDAS-D).</td>
+                                </tr>
+                                <tr class="bg-white border-b hover:bg-gray-50">
+                                    <th scope="row" class="px-4 py-2 font-medium text-gray-900 whitespace-nowrap">TotalReceitaSistema</th>
+                                    <td class="px-4 py-2">Soma da Receita Faturada (`doc_fonte`) no mesmo PA.</td>
+                                </tr>
+                                <tr class="bg-white border-b hover:bg-gray-50">
+                                    <th scope="row" class="px-4 py-2 font-medium text-gray-900 whitespace-nowrap">DivergenciaValor</th>
+                                    <td class="px-4 py-2 font-mono text-xs text-red-600">`ABS(TotalRPA - TotalReceitaSistema)`</td>
+                                </tr>
+                                <tr class="bg-white hover:bg-gray-50">
+                                    <th scope="row" class="px-4 py-2 font-medium text-gray-900 whitespace-nowrap">DivergenciaPct</th>
+                                    <td class="px-4 py-2 font-mono text-xs text-red-600">`IF(TotalRPA=0, 0, DIVIDE(DivergenciaValor, TotalRPA) * 100)`</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="space-y-4 pt-4">
+                    <h2 class="text-2xl font-bold text-supernova border-b pb-1">3. Fluxo de Execução (BPMN - 7 Etapas)</h2>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm text-left text-gray-500 rounded-lg overflow-hidden">
+                            <thead class="text-xs text-gray-700 uppercase bg-gray-50">
+                                <tr>
+                                    <th scope="col" class="px-4 py-3">Etapa</th>
+                                    <th scope="col" class="px-4 py-3">Participante</th>
+                                    <th scope="col" class="px-4 py-3">Descrição</th>
+                                    <th scope="col" class="px-4 py-3">Status / Saída</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="bg-white border-b hover:bg-gray-50"><th scope="row" class="px-4 py-2 font-medium text-gray-900 whitespace-nowrap">**1.**</th><td class="px-4 py-2">Contribuinte/RFB</td><td class="px-4 py-2">Declaração PGDAS-D/DEFIS e disponibilização dos XMLs no e-CAC.</td><td class="px-4 py-2">Arquivos XML disponíveis.</td></tr>
+                                <tr class="bg-white border-b hover:bg-gray-50"><th scope="row" class="px-4 py-2 font-medium text-gray-900 whitespace-nowrap">**2.**</th><td class="px-4 py-2">Fiscal/Supernova</td><td class="px-4 py-2">Coleta e armazenamento dos XMLs no repositório local (`C:\FiscalizacaoSN\XML_Receita`).</td><td class="px-4 py-2">XMLs no servidor.</td></tr>
+                                <tr class="bg-white border-b hover:bg-gray-50"><th scope="row" class="px-4 py-2 font-medium text-gray-900 whitespace-nowrap">**3.**</th><td class="px-4 py-2 font-bold text-db-engine">SQL Server</td><td class="px-4 py-2">**Processamento:** Stored Procedures importam XMLs para tabelas transacionais (`pgdas_...`).</td><td class="px-4 py-2">Dados normalizados no DB.</td></tr>
+                                <tr class="bg-white border-b hover:bg-gray-50"><th scope="row" class="px-4 py-2 font-medium text-gray-900 whitespace-nowrap">**4.**</th><td class="px-4 py-2 font-bold text-db-engine">SQL Server</td><td class="px-4 py-2">**Integração:** Consolida dados da RFB com a tabela `doc_fonte` (Supernova).</td><td class="px-4 py-2">Chaves de ligação validadas.</td></tr>
+                                <tr class="bg-white border-b hover:bg-gray-50"><th scope="row" class="px-4 py-2 font-medium text-gray-900 whitespace-nowrap">**5.**</th><td class="px-4 py-2 font-bold text-db-engine">SQL Server</td><td class="px-4 py-2">**Cruzamento Automático:** Views (`vw_pgdas_divergencia`) executam a lógica de confronto e classificação de risco.</td><td class="px-4 py-2">Base de alertas populada.</td></tr>
+                                <tr class="bg-white border-b hover:bg-gray-50"><th scope="row" class="px-4 py-2 font-medium text-gray-900 whitespace-nowrap">**6.**</th><td class="px-4 py-2">BI Analyst</td><td class="px-4 py-2">Dashboards de Power BI (via **DirectQuery**) acessam as views (Etapa 5) para visualização em tempo real.</td><td class="px-4 py-2">Relatório de Alertas ativo.</td></tr>
+                                <tr class="bg-white hover:bg-gray-50"><th scope="row" class="px-4 py-2 font-medium text-gray-900 whitespace-nowrap">**7.**</th><td class="px-4 py-2">Fiscal / Gestor</td><td class="px-4 py-2">**Decisão Formal (Gateway):** Se Divergência > 5%, é necessária uma Ação Fiscal. Caso contrário, o processo é encerrado.</td><td class="px-4 py-2">Ação registrada no Supernova.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="space-y-4 pt-4">
+                    <h2 class="text-2xl font-bold text-supernova border-b pb-1">4. Orientações para Desenvolvimento</h2>
+
+                    <h3 class="text-xl font-semibold mt-4">4.1 SQL Server</h3>
+                    <ul class="list-disc list-inside space-y-2 text-base">
+                        <li>Garantir que as `Stored Procedures` de importação (Etapa 3) sejam robustas contra erros de `OPENROWSET` (permissão, formato de path).</li>
+                        <li>Testar a extração dos `nodes` XML para garantir que os valores de Receita e Período de Apuração estejam sendo lidos corretamente, conforme o layout oficial do PGDAS-D.</li>
+                        <li>As Views de Cruzamento (Etapa 5) devem ter alta performance, pois serão o *source* do DirectQuery do Power BI.</li>
+                    </ul>
+
+                    <h3 class="text-xl font-semibold mt-4">4.2 Power BI (DirectQuery)</h3>
+                    <ul class="list-disc list-inside space-y-2 text-base">
+                        <li>Conexão: SQL Server -> Banco `base_fiscalizacao_SN` -> **Modo DirectQuery**.</li>
+                        <li>Foco em visualização das Views: `vw_pgdas_divergencia` e `vw_pgdas_alertas`.</li>
+                        <li>As Medidas DAX de Divergência (Valor e Percentual) devem ser criadas no BI para facilitar a filtragem e a regra do **Gateway (> 5%)**.</li>
+                    </ul>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // JavaScript para controle do Modal
+        const openButton = document.getElementById('open-spec-modal');
+        const closeButton = document.getElementById('close-spec-modal');
+        const modal = document.getElementById('spec-modal');
+
+        function openModal() {
+            modal.classList.add('open');
+            document.body.style.overflow = 'hidden'; // Evita scroll no corpo
+        }
+
+        function closeModal() {
+            modal.classList.remove('open');
+            document.body.style.overflow = ''; // Restaura scroll no corpo
+        }
+
+        openButton.addEventListener('click', openModal);
+        closeButton.addEventListener('click', closeModal);
+
+        // Fechar modal ao clicar fora do conteúdo (overlay)
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                closeModal();
+            }
+        });
+        
+        // Fechar modal com tecla ESC
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && modal.classList.contains('open')) {
+                closeModal();
+            }
+        });
+    </script>
+
+</body>
+</html>
