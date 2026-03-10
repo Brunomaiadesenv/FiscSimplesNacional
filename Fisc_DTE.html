@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diagramas BPMN</title>
+    <!-- Tailwind CSS for styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Mermaid.js for BPMN diagram rendering -->
+    <script type="module">
+        import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+        mermaid.initialize({ startOnLoad: true });
+    </script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .mermaid {
+            background-color: #f7fafc;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            padding: 2rem;
+            margin-bottom: 2rem;
+            overflow-x: auto;
+        }
+        .code-block {
+            background-color: #2d3748;
+            color: #e2e8f0;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            font-family: monospace;
+            font-size: 0.875rem;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 p-8">
+
+    <div class="max-w-7xl mx-auto">
+        <h1 class="text-3xl font-bold text-center mb-8 text-gray-800">Diagramas de Fluxo de Processo</h1>
+
+        <!-- Existing Diagrams -->
+        <div class="mb-12">
+            <h2 class="text-2xl font-semibold mb-4 text-gray-700">Fluxo de Envio e Ciência de Notificação (DTE)</h2>
+            <div class="mermaid">
+                %%{init: {'flowchart': {'htmlLabels': false}}}%%
+                sequenceDiagram
+                    participant Fiscal
+                    participant Sistema DTE
+                    participant Contribuinte
+                    
+                    Fiscal->>Sistema DTE: Geração de Notificação
+                    Sistema DTE->>Sistema DTE: Publicar no DTE
+                    Sistema DTE->>Contribuinte: Enviar Alerta
+                    Contribuinte->>Sistema DTE: Contribuinte Acessa
+                    Sistema DTE->>Sistema DTE: Registra Ciência
+
+            </div>
+        </div>
+
+        <div class="mb-12">
+            <h2 class="text-2xl font-semibold mb-4 text-gray-700">Fluxo de Fiscalização de ISS e Taxas</h2>
+            <div class="mermaid">
+                %%{init: {'flowchart': {'htmlLabels': false}}}%%
+                flowchart TB
+                    subgraph pool_fiscalizacao [Fiscalização ISS e Taxas]
+                        direction LR
+                        subgraph lane_fiscal [Fiscal]
+                            start_fiscal((Início))
+                            selecao[Seleção de Empresas]
+                            analise[Análise de NFS-e]
+                            parametrizacao[Parametrização de Fórmulas]
+                            lancamento[Lançamento de Débito]
+                            autuacao[Autuação/Notificação]
+                        end
+                        subgraph lane_contribuinte [Contribuinte]
+                            recurso_opcional{Possibilidade de Recurso?}
+                            recurso[Recurso]
+                        end
+                    end
+                    
+                    start_fiscal --> selecao
+                    selecao --> analise
+                    analise --> parametrizacao
+                    parametrizacao --> lancamento
+                    lancamento --> autuacao
+                    autuacao --> recurso_opcional
+                    recurso_opcional -- Sim --> recurso
+                    recurso_opcional -- Não --> end_fiscal((Fim))
+            </div>
+        </div>
+
+        <div class="mb-12">
+            <h2 class="text-2xl font-semibold mb-4 text-gray-700">Fluxo de Integração Simples Nacional</h2>
+            <div class="mermaid">
+                %%{init: {'flowchart': {'htmlLabels': false}}}%%
+                flowchart TB
+                    subgraph pool_integracao [Integração Simples Nacional]
+                        direction LR
+                        subgraph lane_receita [Receita Federal]
+                            start_integracao((Início))
+                            importar_arquivos[Importação de Arquivos]
+                        end
+                        subgraph lane_municipal [Sistema Municipal]
+                            validacao[Validação]
+                            comparacao[Comparação com Cadastro e NFS-e]
+                            divergencias[Identificação de Divergências]
+                        end
+                        subgraph lane_fiscal [Fiscal]
+                            autuacao_cobranca[Autuação / Cobrança]
+                            atualizacao_conta[Atualização Conta Corrente Fiscal]
+                        end
+                    end
+                    
+                    start_integracao --> importar_arquivos
+                    importar_arquivos --> validacao
+                    validacao --> comparacao
+                    comparacao --> divergencias
+                    divergencias --> autuacao_cobranca
+                    autuacao_cobranca --> atualizacao_conta
+                    atualizacao_conta --> end_integracao((Fim))
+            </div>
+        </div>
+        
+    
+</body>
+</html>
